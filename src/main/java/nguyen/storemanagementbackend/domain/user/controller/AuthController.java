@@ -8,6 +8,7 @@ import nguyen.storemanagementbackend.domain.user.dto.AuthResponseDto;
 import nguyen.storemanagementbackend.domain.user.dto.RegisterRequestDto;
 import nguyen.storemanagementbackend.domain.user.model.Users;
 import nguyen.storemanagementbackend.domain.user.repository.UsersRepository;
+import nguyen.storemanagementbackend.domain.user.service.UsersService;
 import nguyen.storemanagementbackend.security.JwtTokenProvider;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
@@ -18,6 +19,8 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/auth")
@@ -36,6 +39,7 @@ public class AuthController {
     private final JwtTokenProvider jwtTokenProvider;
     private final UsersRepository usersRepository;
     private final PasswordEncoder passwordEncoder;
+    private final UsersService usersService;
 
     @Value("${security.jwt.expiration-ms}")
     private long expirationMs;
@@ -43,11 +47,13 @@ public class AuthController {
     public AuthController(AuthenticationManager authenticationManager,
                           JwtTokenProvider jwtTokenProvider,
                           UsersRepository usersRepository,
-                          PasswordEncoder passwordEncoder) {
+                          PasswordEncoder passwordEncoder,
+                          UsersService usersService) {
         this.authenticationManager = authenticationManager;
         this.jwtTokenProvider = jwtTokenProvider;
         this.usersRepository = usersRepository;
         this.passwordEncoder = passwordEncoder;
+        this.usersService = usersService;
     }
 
     @PostMapping("/login")
@@ -67,6 +73,17 @@ public class AuthController {
                         new AuthResponseDto(token, expirationMs / 1000)
                         )
                 );
+    }
+
+    @GetMapping("/all")
+    public ResponseEntity<GenericResponseDto<List<Users>>> findAllController() {
+        return ResponseEntity
+                .status(HttpStatus.ACCEPTED.value())
+                .body(new GenericResponseDto<>(
+                        HttpStatus.ACCEPTED.value(),
+                        "User found!",
+                        usersService.findAllUsersService()
+                ));
     }
 
     @PostMapping("/register")
