@@ -6,6 +6,8 @@ import nguyen.storemanagementbackend.domain.user.repository.UsersRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 
 @Service
 public class UsersService {
@@ -25,6 +27,14 @@ public class UsersService {
         }
 
         return usersList;
+    }
+
+    public Users findUserByName(String userName) {
+        Optional<Users> userInSearch = usersRepository.findByUserName(userName);
+        if (userInSearch.isEmpty()) {
+            throw new NoUserFoundException("No user found!");
+        }
+        return userInSearch.get();
     }
 
 }
