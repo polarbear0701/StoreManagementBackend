@@ -2,6 +2,7 @@ package nguyen.storemanagementbackend.domain.store.model;
 
 import jakarta.persistence.*;
 import lombok.*;
+import nguyen.storemanagementbackend.common.enumeration.ReservationStatus;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
@@ -27,9 +28,12 @@ public class ReservationModel {
     @ManyToOne(optional = false)
     @JoinColumn(name = "store_slot_id", referencedColumnName = "store_slot_id", nullable = false)
     private StoreSlotModel storeSlot;
-
+    
+    
+    @Enumerated(EnumType.STRING)
     @Column(name = "status", length = 20, nullable = false)
-    private String status; // 'BOOKED' | 'CANCELLED'
+    @Builder.Default
+    private ReservationStatus status = ReservationStatus.BOOKED;
 
     @Column(name = "party_size", nullable = false)
     private int partySize;
