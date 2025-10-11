@@ -8,18 +8,17 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 
 @ControllerAdvice
 public class GlobalExceptionHandler {
+    
     @ExceptionHandler(NoUserFoundException.class)
-    public ResponseEntity<GenericExceptionResponseDto> handleNoUserFound(NoUserFoundException exception) {
+    public ResponseEntity<GenericExceptionResponseDto> handleNoUserFound(
+        NoUserFoundException exception
+    ) {
         GenericExceptionResponseDto error = new GenericExceptionResponseDto(
-                HttpStatus.NOT_FOUND.value(),
-                exception.getMessage(),
-                System.currentTimeMillis()
+            HttpStatus.NOT_FOUND.value(),
+            exception.getMessage(),
+            System.currentTimeMillis()
         );
 
-        return ResponseEntity
-                .status(HttpStatus.NOT_FOUND.value())
-                .body(
-                        error
-                );
+        return ResponseEntity.status(HttpStatus.NOT_FOUND.value()).body(error);
     }
 }
