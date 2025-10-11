@@ -27,8 +27,8 @@ public class Address {
     @Column(name = "address_id")
     private UUID addressId;
 
-    @Column(name = "address_number")
-    private int addressNumber;
+    @Column(name = "address_number", length = 30)
+    private String addressNumber;
 
     @Column(name = "address_ward", length = 50)
     private String addressWard;

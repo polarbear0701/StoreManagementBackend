@@ -13,14 +13,14 @@ import java.util.UUID;
 @AllArgsConstructor
 @Builder
 @Table(name = "store_info")
-public class StoreInfo {
+public class StoreInfoModel {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
-    @Column(name = "store_id")
-    private UUID storeId;
+    @Column(name = "store_info_id")
+    private UUID storeInfoId;
 
-    @Column(name = "store_name")
+    @Column(name = "store_name", length = 50, nullable = false)
     private String storeName;
 
     @OneToOne

@@ -61,10 +61,12 @@ public class Users {
 
     @Enumerated(EnumType.STRING)
     @Column(name = "role", length = 20, nullable = false)
+    @Builder.Default
     private Role role = Role.STAFF;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "auth_provider", length = 20, nullable = false)
+    @Builder.Default
     private AuthProvider authProvider = AuthProvider.LOCAL;
 
     @PrePersist
