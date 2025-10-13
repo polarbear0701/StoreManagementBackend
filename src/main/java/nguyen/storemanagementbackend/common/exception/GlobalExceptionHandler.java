@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 
 @ControllerAdvice
 public class GlobalExceptionHandler {
-    
+
     @ExceptionHandler(NoUserFoundException.class)
     public ResponseEntity<GenericExceptionResponseDto> handleNoUserFound(
         NoUserFoundException exception
@@ -20,5 +20,29 @@ public class GlobalExceptionHandler {
         );
 
         return ResponseEntity.status(HttpStatus.NOT_FOUND.value()).body(error);
+    }
+
+    @ExceptionHandler(InvalidNewStoreException.class)
+    public ResponseEntity<GenericExceptionResponseDto> handleInvalidNewStore(
+        InvalidNewStoreException exception
+    ) {
+        GenericExceptionResponseDto error = new GenericExceptionResponseDto(
+            HttpStatus.BAD_REQUEST.value(),
+            exception.getMessage(),
+            System.currentTimeMillis()
+        );
+        
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST.value()).body(error);
+    }
+
+    @ExceptionHandler(UserAlreadyExistsException.class)
+    public ResponseEntity<GenericExceptionResponseDto> handleUserAlreadyExists(UserAlreadyExistsException exception) {
+        GenericExceptionResponseDto error = new GenericExceptionResponseDto(
+                HttpStatus.BAD_REQUEST.value(),
+                exception.getMessage(),
+                System.currentTimeMillis()
+        );
+
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST.value()).body(error);
     }
 }
