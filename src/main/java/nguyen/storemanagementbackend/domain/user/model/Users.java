@@ -49,7 +49,7 @@ public class Users {
     @Column(name = "user_age")
     private int userAge;
 
-    @OneToOne
+    @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
     @JoinColumn(name = "user_address", referencedColumnName = "address_id")
     private Address address;
 
