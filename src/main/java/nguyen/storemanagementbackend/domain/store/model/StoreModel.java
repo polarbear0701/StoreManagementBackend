@@ -2,6 +2,7 @@ package nguyen.storemanagementbackend.domain.store.model;
 
 import jakarta.persistence.*;
 import lombok.*;
+import lombok.experimental.SuperBuilder;
 import nguyen.storemanagementbackend.domain.user.model.Users;
 
 import java.time.LocalDateTime;
@@ -15,7 +16,7 @@ import java.util.UUID;
 @AllArgsConstructor
 @Getter
 @Setter
-@Builder
+@SuperBuilder
 public class StoreModel {
 
 	@Id
@@ -27,7 +28,7 @@ public class StoreModel {
     @JoinColumn(name = "store_owner", referencedColumnName = "user_id", nullable = false)
     private Users storeOwner;
 
-    @OneToOne
+    @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
     @JoinColumn(name = "store_info_id", referencedColumnName = "store_info_id", unique = true)
     private StoreInfoModel storeInfo;
 

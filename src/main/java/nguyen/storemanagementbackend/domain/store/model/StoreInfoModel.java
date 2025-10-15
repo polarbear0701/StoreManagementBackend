@@ -23,7 +23,7 @@ public class StoreInfoModel {
     @Column(name = "store_name", length = 50, nullable = false)
     private String storeName;
 
-    @OneToOne
+    @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
     @JoinColumn(name = "store_address", referencedColumnName = "address_id")
     private Address storeAddress;
 

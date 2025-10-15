@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 @Service
 public class UsersService {
@@ -77,6 +78,11 @@ public class UsersService {
 
     public boolean findByEmail(String email) {
         return usersRepository.findByEmail(email).isPresent();
+    }
+
+
+    public Optional<Users> fetchUserById(UUID userId) {
+        return usersRepository.findById(userId);
     }
 
 }
