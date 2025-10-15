@@ -45,4 +45,15 @@ public class GlobalExceptionHandler {
 
         return ResponseEntity.status(HttpStatus.BAD_REQUEST.value()).body(error);
     }
+
+    @ExceptionHandler(FailToRegisterException.class)
+    public ResponseEntity<GenericExceptionResponseDto> handleFailToRegister(FailToRegisterException exception) {
+        GenericExceptionResponseDto error = new GenericExceptionResponseDto(
+                HttpStatus.BAD_REQUEST.value(),
+                exception.getMessage(),
+                System.currentTimeMillis()
+        );
+
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST.value()).body(error);
+    }
 }
