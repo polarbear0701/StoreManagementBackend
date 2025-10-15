@@ -1,7 +1,7 @@
 package nguyen.storemanagementbackend.domain.user.dto;
 
 import lombok.*;
-
+import nguyen.storemanagementbackend.domain.address.dto.NewAddressDto;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -12,4 +12,6 @@ public class RegisterRequestDto {
     private String password;
     private String userName;
     private int userAge;
+
+    private NewAddressDto address;
 }
