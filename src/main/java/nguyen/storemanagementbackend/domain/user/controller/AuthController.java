@@ -1,13 +1,12 @@
 package nguyen.storemanagementbackend.domain.user.controller;
 
-import nguyen.storemanagementbackend.common.enumeration.AuthProvider;
-import nguyen.storemanagementbackend.common.enumeration.Role;
+import nguyen.storemanagementbackend.common.exception.FailToRegisterException;
+import nguyen.storemanagementbackend.common.exception.UserAlreadyExistsException;
 import nguyen.storemanagementbackend.common.generic.GenericResponseDto;
 import nguyen.storemanagementbackend.domain.user.dto.AuthRequestDto;
 import nguyen.storemanagementbackend.domain.user.dto.AuthResponseDto;
 import nguyen.storemanagementbackend.domain.user.dto.RegisterRequestDto;
 import nguyen.storemanagementbackend.domain.user.model.Users;
-import nguyen.storemanagementbackend.domain.user.repository.UsersRepository;
 import nguyen.storemanagementbackend.domain.user.service.UsersService;
 import nguyen.storemanagementbackend.security.JwtTokenProvider;
 import org.springframework.beans.factory.annotation.Value;
@@ -17,7 +16,6 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.User;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -37,8 +35,6 @@ public class AuthController {
 
     private final AuthenticationManager authenticationManager;
     private final JwtTokenProvider jwtTokenProvider;
-    private final UsersRepository usersRepository;
-    private final PasswordEncoder passwordEncoder;
     private final UsersService usersService;
 
     @Value("${security.jwt.expiration-ms}")
@@ -46,13 +42,9 @@ public class AuthController {
 
     public AuthController(AuthenticationManager authenticationManager,
                           JwtTokenProvider jwtTokenProvider,
-                          UsersRepository usersRepository,
-                          PasswordEncoder passwordEncoder,
                           UsersService usersService) {
         this.authenticationManager = authenticationManager;
         this.jwtTokenProvider = jwtTokenProvider;
-        this.usersRepository = usersRepository;
-        this.passwordEncoder = passwordEncoder;
         this.usersService = usersService;
     }
 
@@ -68,9 +60,9 @@ public class AuthController {
         return ResponseEntity
                 .status(HttpStatus.ACCEPTED)
                 .body(new GenericResponseDto<>(
-                        HttpStatus.ACCEPTED.value(),
-                        "Logged in Successfully",
-                        new AuthResponseDto(token, expirationMs / 1000)
+                                HttpStatus.ACCEPTED.value(),
+                                "Logged in Successfully",
+                                new AuthResponseDto(token, expirationMs / 1000)
                         )
                 );
     }
@@ -88,26 +80,16 @@ public class AuthController {
 
     @PostMapping("/register")
     public ResponseEntity<GenericResponseDto<Users>> register(@RequestBody RegisterRequestDto req) {
-        if (usersRepository.findByEmail(req.getEmail()).isPresent()) {
-            return ResponseEntity
-                    .badRequest()
-                    .body(new GenericResponseDto<>(
-                            HttpStatus.BAD_REQUEST.value(),
-                            "User already exists!",
-                            null
-                    ));
+        if (usersService.findByEmail(req.getEmail())) {
+            throw new UserAlreadyExistsException("User with this email already exists!");
         }
 
-        Users user = Users.builder()
-                .email(req.getEmail())
-                .password(passwordEncoder.encode(req.getPassword()))
-                .userName(req.getUserName())
-                .userAge(req.getUserAge())
-                .role(Role.STAFF)
-                .authProvider(AuthProvider.LOCAL)
-                .build();
+        Users saved = usersService.registerNewUsers(req);
 
-        Users saved = usersRepository.save(user);
+        if (saved == null) {
+            throw new FailToRegisterException("Cannot register right now. Please check again.");
+        }
+
         return ResponseEntity
                 .status(HttpStatus.CREATED)
                 .body(new GenericResponseDto<>(
