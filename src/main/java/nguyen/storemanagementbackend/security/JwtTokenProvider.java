@@ -11,10 +11,7 @@ import org.springframework.stereotype.Component;
 
 import javax.crypto.SecretKey;
 import java.nio.charset.StandardCharsets;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Component
@@ -31,7 +28,7 @@ public class JwtTokenProvider {
 		this.expirationMs = expirationMs;
 	}
 
-	public String generateToken(String email, Collection<? extends GrantedAuthority> authorities) {
+	public String generateToken(Map<String, String> userInfo, Collection<? extends GrantedAuthority> authorities) {
         Date now = new Date();
         Date expiry = new Date(now.getTime() + expirationMs);
 
@@ -40,7 +37,8 @@ public class JwtTokenProvider {
                 : authorities.stream().map(GrantedAuthority::getAuthority).collect(Collectors.toList());
 
         return Jwts.builder()
-                .setSubject(email)
+                .setSubject(userInfo.get("userEmail"))
+                .claim("userId", userInfo.get("userId"))
                 .claim("roles", roles)
                 .setIssuedAt(now)
                 .setExpiration(expiry)
@@ -50,6 +48,10 @@ public class JwtTokenProvider {
 
     public String getEmailFromToken(String token) {
         return getAllClaims(token).getSubject();
+    }
+
+    public String getUserIdFromToken(String token) {
+        return (String) getAllClaims(token).get("userId");
     }
 
     public List<String> getRolesFromToken(String token) {

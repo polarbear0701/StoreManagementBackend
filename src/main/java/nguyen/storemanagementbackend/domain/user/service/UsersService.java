@@ -80,6 +80,10 @@ public class UsersService {
         return usersRepository.findByEmail(email).isPresent();
     }
 
+    public Optional<Users> fetchUserByEmail(String email) {
+        return usersRepository.findByEmail(email);
+    }
+
 
     public Optional<Users> fetchUserById(UUID userId) {
         return usersRepository.findById(userId);

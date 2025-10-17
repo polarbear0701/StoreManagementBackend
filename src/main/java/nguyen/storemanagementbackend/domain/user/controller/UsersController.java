@@ -6,7 +6,7 @@ import nguyen.storemanagementbackend.domain.user.repository.UsersRepository;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/users")
+@RequestMapping("/api/v1/users")
 public class UsersController {
 
     private final UsersRepository usersRepository;
@@ -17,8 +17,7 @@ public class UsersController {
 
     @GetMapping("/find")
     public Users findUsersById(@RequestBody String user_name) {
-        Users users = usersRepository.findByUserName(user_name).orElseThrow(() -> new NoUserFoundException("No user found!"));
 
-        return users;
+        return usersRepository.findByUserName(user_name).orElseThrow(() -> new NoUserFoundException("No user found!"));
     }
 }

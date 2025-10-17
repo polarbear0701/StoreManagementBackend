@@ -1,6 +1,7 @@
 package nguyen.storemanagementbackend.domain.user.controller;
 
 import nguyen.storemanagementbackend.common.exception.FailToRegisterException;
+import nguyen.storemanagementbackend.common.exception.NoUserFoundException;
 import nguyen.storemanagementbackend.common.exception.UserAlreadyExistsException;
 import nguyen.storemanagementbackend.common.generic.GenericResponseDto;
 import nguyen.storemanagementbackend.domain.user.dto.AuthRequestDto;
@@ -18,10 +19,12 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @RestController
-@RequestMapping("/api/auth")
+@RequestMapping("/api/v1/auth")
 public class AuthController {
     @GetMapping("/greet")
     public ResponseEntity<GenericResponseDto<String>> greetController() {
@@ -55,7 +58,16 @@ public class AuthController {
         );
         User principal = (User) authentication.getPrincipal();
 
-        String token = jwtTokenProvider.generateToken(principal.getUsername(), principal.getAuthorities());
+        Map<String, String> userInfo = new HashMap<>();
+
+        Users fetchedUser = usersService.fetchUserByEmail(request.getEmail()).orElseThrow(() -> new NoUserFoundException(String.format(
+                "No User found for this email: %s", request.getEmail()
+        )));
+
+        userInfo.put("userEmail", request.getEmail());
+        userInfo.put("userId", fetchedUser.getUserId().toString());
+
+        String token = jwtTokenProvider.generateToken(userInfo, principal.getAuthorities());
 
         return ResponseEntity
                 .status(HttpStatus.ACCEPTED)
@@ -97,5 +109,10 @@ public class AuthController {
                         "User created successfully",
                         saved
                 ));
+    }
+
+    @GetMapping("/userid/{token}")
+    public String getUserId(@PathVariable String token) {
+        return jwtTokenProvider.getUserIdFromToken(token);
     }
 }

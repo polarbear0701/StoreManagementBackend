@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/store")
+@RequestMapping("/api/v1/store")
 public class StoreController {
 
     private final StoreService storeService;
