@@ -11,12 +11,13 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(NoUserFoundException.class)
     public ResponseEntity<GenericExceptionResponseDto> handleNoUserFound(
-        NoUserFoundException exception
+            NoUserFoundException exception
     ) {
         GenericExceptionResponseDto error = new GenericExceptionResponseDto(
-            HttpStatus.NOT_FOUND.value(),
-            exception.getMessage(),
-            System.currentTimeMillis()
+                HttpStatus.NOT_FOUND.value(),
+                exception.getMessage(),
+                System.currentTimeMillis(),
+                exception.getClass().getSimpleName()
         );
 
         return ResponseEntity.status(HttpStatus.NOT_FOUND.value()).body(error);
@@ -24,14 +25,15 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(InvalidNewStoreException.class)
     public ResponseEntity<GenericExceptionResponseDto> handleInvalidNewStore(
-        InvalidNewStoreException exception
+            InvalidNewStoreException exception
     ) {
         GenericExceptionResponseDto error = new GenericExceptionResponseDto(
-            HttpStatus.BAD_REQUEST.value(),
-            exception.getMessage(),
-            System.currentTimeMillis()
+                HttpStatus.BAD_REQUEST.value(),
+                exception.getMessage(),
+                System.currentTimeMillis(),
+                exception.getClass().getSimpleName()
         );
-        
+
         return ResponseEntity.status(HttpStatus.BAD_REQUEST.value()).body(error);
     }
 
@@ -40,7 +42,8 @@ public class GlobalExceptionHandler {
         GenericExceptionResponseDto error = new GenericExceptionResponseDto(
                 HttpStatus.BAD_REQUEST.value(),
                 exception.getMessage(),
-                System.currentTimeMillis()
+                System.currentTimeMillis(),
+                exception.getClass().getSimpleName()
         );
 
         return ResponseEntity.status(HttpStatus.BAD_REQUEST.value()).body(error);
@@ -51,7 +54,8 @@ public class GlobalExceptionHandler {
         GenericExceptionResponseDto error = new GenericExceptionResponseDto(
                 HttpStatus.BAD_REQUEST.value(),
                 exception.getMessage(),
-                System.currentTimeMillis()
+                System.currentTimeMillis(),
+                exception.getClass().getSimpleName()
         );
 
         return ResponseEntity.status(HttpStatus.BAD_REQUEST.value()).body(error);
