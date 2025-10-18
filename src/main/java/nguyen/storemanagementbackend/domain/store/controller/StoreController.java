@@ -4,8 +4,10 @@ import nguyen.storemanagementbackend.common.generic.GenericResponseDto;
 import nguyen.storemanagementbackend.domain.store.dto.NewStoreDto;
 import nguyen.storemanagementbackend.domain.store.model.StoreModel;
 import nguyen.storemanagementbackend.domain.store.service.StoreService;
+import nguyen.storemanagementbackend.security.CustomUserDetails;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.UUID;
@@ -21,7 +23,17 @@ public class StoreController {
     }
 
     @PostMapping("/create")
-    public ResponseEntity<GenericResponseDto<StoreModel>> createNewStoreController(@RequestBody NewStoreDto newStoreDto) {
+    public ResponseEntity<GenericResponseDto<StoreModel>> createNewStoreController(
+            @RequestBody NewStoreDto newStoreDto,
+            @AuthenticationPrincipal CustomUserDetails currentUser
+            ) {
+
+        if (currentUser.getId() == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+
+        newStoreDto.setStoreOwnerId(currentUser.getId());
+
         StoreModel createdStore = storeService.createStore(newStoreDto);
         return ResponseEntity.ok().body(new GenericResponseDto<>(HttpStatus.CREATED.value(), "Success", createdStore));
     }
