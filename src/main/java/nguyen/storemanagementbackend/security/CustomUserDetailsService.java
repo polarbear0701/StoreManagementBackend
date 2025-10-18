@@ -29,17 +29,6 @@ public class CustomUserDetailsService implements UserDetailsService {
                 .findByEmail(email)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found: " + email));
         
-        var authorities = List.of(new SimpleGrantedAuthority("ROLE_" + users.getRole()));
-        
-        return User.builder()
-                .username(users.getEmail())
-                .password(users.getPassword())
-            	.authorities(authorities)
-           		.accountLocked(false)
-           		.accountExpired(false)
-           		.credentialsExpired(false)
-           		.disabled(false)
-           		.build();
-        
+        return new CustomUserDetails(users);
     }
 }

@@ -27,6 +27,16 @@ public class StoreService {
         this.usersService = usersService;
     }
 
+    /**
+     * Create a new store
+     *
+     * @param newStoreDto: Data Transfer Object containing information about the new store to be created.
+     *                   Containing store owner ID and store info.
+     * @return: The newly created StoreModel object.
+     * @throws InvalidNewStoreException: If the provided store owner ID does not correspond to
+     *                                   a valid ADMIN user.
+     */
+
     public StoreModel createStore(NewStoreDto newStoreDto) {
 
         validateNewStoreDto(newStoreDto);
