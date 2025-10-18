@@ -37,9 +37,9 @@ public class JwtTokenProvider {
                 : authorities.stream().map(GrantedAuthority::getAuthority).collect(Collectors.toList());
 
         return Jwts.builder()
-                .setSubject(userInfo.get("userEmail"))
-                .claim("userId", userInfo.get("userId"))
-                .claim("roles", roles)
+                .setSubject(userInfo.get("userId"))
+                .claim("userEmail", userInfo.get("userEmail"))
+                .claim("userRoles", roles)
                 .setIssuedAt(now)
                 .setExpiration(expiry)
                 .signWith(secretKey, SignatureAlgorithm.HS256)
@@ -47,15 +47,15 @@ public class JwtTokenProvider {
     }
 
     public String getEmailFromToken(String token) {
-        return getAllClaims(token).getSubject();
+        return (String)getAllClaims(token).get("userEmail");
     }
 
     public String getUserIdFromToken(String token) {
-        return (String) getAllClaims(token).get("userId");
+        return getAllClaims(token).getSubject();
     }
 
     public List<String> getRolesFromToken(String token) {
-        Object roles = getAllClaims(token).get("roles");
+        Object roles = getAllClaims(token).get("userRoles");
         if (roles instanceof List<?> list) {
             return list.stream().map(String::valueOf).collect(Collectors.toList());
         }
