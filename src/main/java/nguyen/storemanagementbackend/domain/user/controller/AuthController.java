@@ -4,12 +4,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import nguyen.storemanagementbackend.common.exception.FailToRegisterException;
-import nguyen.storemanagementbackend.common.exception.NoUserFoundException;
 import nguyen.storemanagementbackend.common.exception.UserAlreadyExistsException;
 import nguyen.storemanagementbackend.common.generic.GenericResponseDto;
 import nguyen.storemanagementbackend.domain.user.dto.AuthRequestDto;
 import nguyen.storemanagementbackend.domain.user.dto.AuthResponseDto;
 import nguyen.storemanagementbackend.domain.user.dto.RegisterRequestDto;
+import nguyen.storemanagementbackend.domain.user.dto.RegisterResponseDto;
 import nguyen.storemanagementbackend.domain.user.model.Users;
 import nguyen.storemanagementbackend.domain.user.service.UsersService;
 import nguyen.storemanagementbackend.security.CustomUserDetails;
@@ -20,7 +20,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.userdetails.User;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -97,7 +96,7 @@ public class AuthController {
 	}
 
 	@PostMapping("/register")
-	public ResponseEntity<GenericResponseDto<Users>> register(
+	public ResponseEntity<GenericResponseDto<RegisterResponseDto>> register(
 		@RequestBody RegisterRequestDto req
 	) {
 		if (usersService.findByEmail(req.getEmail())) {
@@ -113,12 +112,20 @@ public class AuthController {
 				"Cannot register right now. Please check again."
 			);
 		}
+		
+		RegisterResponseDto response = RegisterResponseDto
+			.builder()
+			.email(saved.getEmail())
+			.role(saved.getRole())
+			.userId(saved.getUserId().toString())
+			.userName(saved.getUserName())
+			.build();
 
 		return ResponseEntity.status(HttpStatus.CREATED).body(
 			new GenericResponseDto<>(
 				HttpStatus.CREATED.value(),
 				"User created successfully",
-				saved
+				response
 			)
 		);
 	}
