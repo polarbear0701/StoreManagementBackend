@@ -1,15 +1,14 @@
 package nguyen.storemanagementbackend.domain.user.controller;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+
+import nguyen.storemanagementbackend.common.dto.UserResponseBasedDto;
 import nguyen.storemanagementbackend.common.exception.FailToRegisterException;
-import nguyen.storemanagementbackend.common.exception.UserAlreadyExistsException;
 import nguyen.storemanagementbackend.common.generic.GenericResponseDto;
 import nguyen.storemanagementbackend.domain.user.dto.AuthRequestDto;
 import nguyen.storemanagementbackend.domain.user.dto.AuthResponseDto;
 import nguyen.storemanagementbackend.domain.user.dto.RegisterRequestDto;
-import nguyen.storemanagementbackend.domain.user.dto.RegisterResponseDto;
+import nguyen.storemanagementbackend.domain.user.mapper.UserMapper;
 import nguyen.storemanagementbackend.domain.user.model.Users;
 import nguyen.storemanagementbackend.domain.user.service.UsersService;
 import nguyen.storemanagementbackend.security.CustomUserDetails;
@@ -26,20 +25,10 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/api/v1/auth")
 public class AuthController {
 
-	@GetMapping("/greet")
-	public ResponseEntity<GenericResponseDto<String>> greetController() {
-		return ResponseEntity.status(HttpStatus.ACCEPTED).body(
-			new GenericResponseDto<>(
-				HttpStatus.ACCEPTED.value(),
-				"Success",
-				"Hello"
-			)
-		);
-	}
-
 	private final AuthenticationManager authenticationManager;
 	private final JwtTokenProvider jwtTokenProvider;
 	private final UsersService usersService;
+	private final UserMapper userMapper;
 
 	@Value("${security.jwt.expiration-ms}")
 	private long expirationMs;
@@ -47,11 +36,13 @@ public class AuthController {
 	public AuthController(
 		AuthenticationManager authenticationManager,
 		JwtTokenProvider jwtTokenProvider,
-		UsersService usersService
+		UsersService usersService,
+		UserMapper userMapper
 	) {
 		this.authenticationManager = authenticationManager;
 		this.jwtTokenProvider = jwtTokenProvider;
 		this.usersService = usersService;
+		this.userMapper = userMapper;
 	}
 
 	@PostMapping("/login")
@@ -85,47 +76,38 @@ public class AuthController {
 	}
 
 	@GetMapping("/all")
-	public ResponseEntity<GenericResponseDto<List<Users>>> findAllController() {
+	public ResponseEntity<GenericResponseDto<List<UserResponseBasedDto>>> findAllController() {
+
+		List<Users> allUsers = usersService.findAllUsersService();
+
+
+
 		return ResponseEntity.status(HttpStatus.ACCEPTED.value()).body(
 			new GenericResponseDto<>(
 				HttpStatus.ACCEPTED.value(),
 				"User found!",
-				usersService.findAllUsersService()
+				userMapper.toUserResponseBasedDtoList(allUsers)
 			)
 		);
 	}
 
 	@PostMapping("/register")
-	public ResponseEntity<GenericResponseDto<RegisterResponseDto>> register(
+	public ResponseEntity<GenericResponseDto<UserResponseBasedDto>> register(
 		@RequestBody RegisterRequestDto req
 	) {
-		if (usersService.findByEmail(req.getEmail())) {
-			throw new UserAlreadyExistsException(
-				"User with this email already exists!"
-			);
-		}
+		UserResponseBasedDto savedUser = usersService.registerNewUsers(req);
 
-		Users saved = usersService.registerNewUsers(req);
-
-		if (saved == null) {
+		if (savedUser == null) {
 			throw new FailToRegisterException(
 				"Cannot register right now. Please check again."
 			);
 		}
-		
-		RegisterResponseDto response = RegisterResponseDto
-			.builder()
-			.email(saved.getEmail())
-			.role(saved.getRole())
-			.userId(saved.getUserId().toString())
-			.userName(saved.getUserName())
-			.build();
 
 		return ResponseEntity.status(HttpStatus.CREATED).body(
 			new GenericResponseDto<>(
 				HttpStatus.CREATED.value(),
 				"User created successfully",
-				response
+				savedUser
 			)
 		);
 	}
