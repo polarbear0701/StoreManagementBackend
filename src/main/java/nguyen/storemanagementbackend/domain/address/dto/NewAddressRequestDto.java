@@ -7,7 +7,7 @@ import lombok.Setter;
 @Data
 @Getter
 @Setter
-public class NewAddressDto {
+public class NewAddressRequestDto {
     private String addressNumber;
     private String addressWard;
     private String addressDistrict;
