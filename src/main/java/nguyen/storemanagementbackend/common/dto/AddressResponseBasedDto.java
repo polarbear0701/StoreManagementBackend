@@ -1,10 +1,12 @@
-package nguyen.storemanagementbackend.common.basedto;
+package nguyen.storemanagementbackend.common.dto;
 
-import lombok.Builder;
-import lombok.Data;
+import lombok.*;
+import lombok.experimental.SuperBuilder;
 
 @Data
-@Builder
+@SuperBuilder
+@NoArgsConstructor
+@AllArgsConstructor
 public class AddressResponseBasedDto {
     private String addressNumber;
     private String addressWard;
