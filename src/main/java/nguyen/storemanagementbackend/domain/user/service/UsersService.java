@@ -1,10 +1,13 @@
 package nguyen.storemanagementbackend.domain.user.service;
 
+import nguyen.storemanagementbackend.common.dto.UserResponseBasedDto;
 import nguyen.storemanagementbackend.common.enumeration.AuthProvider;
 import nguyen.storemanagementbackend.common.enumeration.Role;
 import nguyen.storemanagementbackend.common.exception.NoUserFoundException;
+import nguyen.storemanagementbackend.common.exception.UserAlreadyExistsException;
 import nguyen.storemanagementbackend.domain.address.model.Address;
 import nguyen.storemanagementbackend.domain.user.dto.RegisterRequestDto;
+import nguyen.storemanagementbackend.domain.user.mapper.UserMapper;
 import nguyen.storemanagementbackend.domain.user.model.Users;
 import nguyen.storemanagementbackend.domain.user.repository.UsersRepository;
 import org.slf4j.Logger;
@@ -20,15 +23,18 @@ import java.util.UUID;
 public class UsersService {
     private final UsersRepository usersRepository;
     private final PasswordEncoder passwordEncoder;
+    private final UserMapper userMapper;
 
     private final Logger logger = LoggerFactory.getLogger(UsersService.class);
 
     public UsersService (
         UsersRepository usersRepository,
-        PasswordEncoder passwordEncoder
+        PasswordEncoder passwordEncoder,
+        UserMapper userMapper
     ) {
         this.usersRepository = usersRepository;
         this.passwordEncoder = passwordEncoder;
+        this.userMapper = userMapper;
     }
 
     public List<Users> findAllUsersService() {
@@ -49,7 +55,13 @@ public class UsersService {
         return userInSearch.get();
     }
 
-    public Users registerNewUsers(RegisterRequestDto requestDto) {
+    public UserResponseBasedDto registerNewUsers(RegisterRequestDto requestDto) {
+        if (this.findByEmail(requestDto.getEmail())) {
+            throw new UserAlreadyExistsException(
+                    "User with this email already exists!"
+            );
+        }
+
         Users user = Users.builder()
                 .email(requestDto.getEmail())
                 .password(passwordEncoder.encode(requestDto.getPassword()))
@@ -73,7 +85,7 @@ public class UsersService {
             logger.info(newAddress.toString());
             user.setAddress(newAddress);
         }
-        return usersRepository.save(user);
+        return userMapper.toUserResponseBasedDto(usersRepository.save(user));
     }
 
     public boolean findByEmail(String email) {
