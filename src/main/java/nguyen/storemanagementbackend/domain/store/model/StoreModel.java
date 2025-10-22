@@ -6,9 +6,7 @@ import lombok.experimental.SuperBuilder;
 import nguyen.storemanagementbackend.domain.user.model.Users;
 
 import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 
 @Entity
 @Table(name = "store")
@@ -45,7 +43,8 @@ public class StoreModel {
         joinColumns = @JoinColumn(name = "store_id"),
         inverseJoinColumns = @JoinColumn(name = "user_id")
     )
-    private Set<Users> admins;
+    @Builder.Default
+    private Set<Users> admins = new HashSet<>();
 
     @ManyToMany
     @JoinTable(
@@ -53,14 +52,17 @@ public class StoreModel {
         joinColumns = @JoinColumn(name = "store_id"),
         inverseJoinColumns = @JoinColumn(name = "user_id")
     )
-    private Set<Users> staff;
+    @Builder.Default
+    private Set<Users> staff = new HashSet<>();
 
     // Relations
     @OneToMany(mappedBy = "store")
-    private List<StockModel> stocks;
+    @Builder.Default
+    private List<StockModel> stocks = new ArrayList<>();
 
     @OneToMany(mappedBy = "store")
-    private List<StoreSlotModel> slots;
+    @Builder.Default
+    private List<StoreSlotModel> slots = new ArrayList<>();
 
     @PrePersist
     public void onCreate() {
@@ -72,4 +74,5 @@ public class StoreModel {
     public void onUpdate() {
         updatedAt = LocalDateTime.now();
     }
+    
 }
