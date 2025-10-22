@@ -1,15 +1,18 @@
 package nguyen.storemanagementbackend.domain.store.controller;
 
+import nguyen.storemanagementbackend.common.dto.StoreResponseBasedDto;
 import nguyen.storemanagementbackend.common.generic.GenericResponseDto;
-import nguyen.storemanagementbackend.domain.store.dto.NewStoreDto;
-import nguyen.storemanagementbackend.domain.store.model.StoreModel;
+import nguyen.storemanagementbackend.domain.store.dto.storemodel.request.NewStoreRequestDto;
+import nguyen.storemanagementbackend.domain.store.dto.storemodel.response.DetailedStoreResponseDto;
 import nguyen.storemanagementbackend.domain.store.service.StoreService;
 import nguyen.storemanagementbackend.security.CustomUserDetails;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.UUID;
 
 @RestController
@@ -22,9 +25,10 @@ public class StoreController {
         this.storeService = storeService;
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping("/create")
-    public ResponseEntity<GenericResponseDto<StoreModel>> createNewStoreController(
-            @RequestBody NewStoreDto newStoreDto,
+    public ResponseEntity<GenericResponseDto<StoreResponseBasedDto>> createNewStoreController(
+            @RequestBody NewStoreRequestDto newStoreRequestDto,
             @AuthenticationPrincipal CustomUserDetails currentUser
             ) {
 
@@ -32,10 +36,25 @@ public class StoreController {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
 
-        newStoreDto.setStoreOwnerId(currentUser.getId());
+        newStoreRequestDto.setStoreOwnerId(currentUser.getId());
 
-        StoreModel createdStore = storeService.createStore(newStoreDto);
+        StoreResponseBasedDto createdStore = storeService.createStore(newStoreRequestDto);
+
         return ResponseEntity.ok().body(new GenericResponseDto<>(HttpStatus.CREATED.value(), "Success", createdStore));
+    }
+
+    @GetMapping("/fetch/store/{storeId}")
+    public ResponseEntity<GenericResponseDto<DetailedStoreResponseDto>> fetchStoreById(@PathVariable UUID storeId) {
+        DetailedStoreResponseDto storeFetchedDto = storeService.fetchStoreById(storeId);
+        return ResponseEntity.ok().body(new GenericResponseDto<>(HttpStatus.OK.value(), "Success", storeFetchedDto));
+    }
+
+    @GetMapping("/fetch/admin")
+    public ResponseEntity<GenericResponseDto<List<DetailedStoreResponseDto>>> fetchStoreByAdminId(
+            @AuthenticationPrincipal CustomUserDetails currentUser
+    ) {
+        List<DetailedStoreResponseDto> storeFetchedDto = storeService.fetchStoreIdsByAdminId(currentUser.getId());
+        return ResponseEntity.ok().body(new GenericResponseDto<>(HttpStatus.OK.value(), "Success", storeFetchedDto));
     }
 
     @DeleteMapping("/delete/{storeId}")
