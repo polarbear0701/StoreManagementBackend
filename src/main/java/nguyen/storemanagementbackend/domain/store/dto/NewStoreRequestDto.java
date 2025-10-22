@@ -10,7 +10,7 @@ import java.util.UUID;
 @Data
 @Setter
 @Getter
-public class NewStoreDto {
+public class NewStoreRequestDto {
 
 	private UUID storeOwnerId;
 	private NewStoreInfoDto storeInfo;

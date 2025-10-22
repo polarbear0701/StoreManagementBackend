@@ -1,4 +1,4 @@
-package nguyen.storemanagementbackend.domain.store.dto;
+package nguyen.storemanagementbackend.domain.store.dto.storemodel.response;
 
 import lombok.*;
 import lombok.experimental.SuperBuilder;
