@@ -24,13 +24,10 @@ public class CustomUserDetails implements UserDetails {
     private final transient String password; // transient: don't serialize the password
     private final Collection<? extends GrantedAuthority> authorities;
 
-    private final String userName;
-
     public CustomUserDetails(Users user) {
         this.id = user.getUserId();
         this.email = user.getEmail();
         this.password = user.getPassword();
-        this.userName = user.getUserName();
         this.authorities = user.getRole() == null
                 ? Collections.emptyList()
                 : List.of(new SimpleGrantedAuthority("ROLE_" + user.getRole().name()));
