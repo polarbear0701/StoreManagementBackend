@@ -1,4 +1,4 @@
-package nguyen.storemanagementbackend.domain.user.dto;
+package nguyen.storemanagementbackend.domain.user.dto.response;
 
 import lombok.*;
 

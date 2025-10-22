@@ -1,4 +1,4 @@
-package nguyen.storemanagementbackend.domain.user.dto;
+package nguyen.storemanagementbackend.domain.user.dto.response;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -13,7 +13,7 @@ import nguyen.storemanagementbackend.common.dto.UserResponseBasedDto;
 @AllArgsConstructor
 @SuperBuilder
 @EqualsAndHashCode(callSuper = true)
-public class DetailedUserDto extends UserResponseBasedDto{
+public class DetailedUserResponseDto extends UserResponseBasedDto{
 
     private AddressResponseBasedDto address;
     private int userAge;

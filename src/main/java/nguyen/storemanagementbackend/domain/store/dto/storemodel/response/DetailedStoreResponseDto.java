@@ -5,8 +5,8 @@ import lombok.experimental.SuperBuilder;
 import nguyen.storemanagementbackend.common.dto.StoreResponseBasedDto;
 import nguyen.storemanagementbackend.domain.store.model.StockModel;
 import nguyen.storemanagementbackend.domain.store.model.StoreSlotModel;
-import nguyen.storemanagementbackend.domain.user.dto.DetailedUserDto;
-import nguyen.storemanagementbackend.domain.user.model.Users;
+import nguyen.storemanagementbackend.domain.user.dto.response.DetailedUserResponseDto;
+import nguyen.storemanagementbackend.domain.user.dto.response.UserSelectionResponseDto;
 
 import java.util.List;
 import java.util.Set;
@@ -18,9 +18,9 @@ import java.util.Set;
 @AllArgsConstructor
 public class DetailedStoreResponseDto extends StoreResponseBasedDto {
 
-    private DetailedUserDto storeOwner;
-    private Set<Users> storeStaff;
-    private Set<Users> storeAdmins;
+    private DetailedUserResponseDto storeOwner;
+    private Set<UserSelectionResponseDto> storeStaff;
+    private Set<UserSelectionResponseDto> storeAdmins;
     private List<StockModel> storeStocks;
     private List<StoreSlotModel> slots;
 }

@@ -4,7 +4,7 @@ import nguyen.storemanagementbackend.common.dto.UserResponseBasedDto;
 import nguyen.storemanagementbackend.common.exception.NoUserFoundException;
 import nguyen.storemanagementbackend.common.exception.UserAlreadyExistsException;
 
-import nguyen.storemanagementbackend.domain.user.dto.RegisterRequestDto;
+import nguyen.storemanagementbackend.domain.user.dto.request.RegisterRequestDto;
 import nguyen.storemanagementbackend.domain.user.mapper.UserMapper;
 import nguyen.storemanagementbackend.domain.user.model.Users;
 import nguyen.storemanagementbackend.domain.user.repository.UsersRepository;
@@ -74,6 +74,8 @@ public class UsersService {
     public Optional<Users> fetchUserByEmail(String email) {
         return usersRepository.findByEmail(email);
     }
+
+
 
 
     public Optional<Users> fetchUserById(UUID userId) {
