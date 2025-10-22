@@ -1,9 +1,12 @@
 package nguyen.storemanagementbackend.domain.store.service;
 
+import jakarta.transaction.Transactional;
+import nguyen.storemanagementbackend.common.dto.StoreResponseBasedDto;
 import nguyen.storemanagementbackend.common.exception.InvalidNewStoreException;
-import nguyen.storemanagementbackend.domain.address.model.Address;
-import nguyen.storemanagementbackend.domain.store.dto.NewStoreDto;
-import nguyen.storemanagementbackend.domain.store.model.StoreInfoModel;
+import nguyen.storemanagementbackend.common.exception.NoStoreFoundException;
+import nguyen.storemanagementbackend.domain.store.dto.storemodel.request.NewStoreRequestDto;
+import nguyen.storemanagementbackend.domain.store.dto.storemodel.response.DetailedStoreResponseDto;
+import nguyen.storemanagementbackend.domain.store.mapper.StoreMapper;
 import nguyen.storemanagementbackend.domain.store.model.StoreModel;
 import nguyen.storemanagementbackend.domain.store.repository.StoreRepository;
 import nguyen.storemanagementbackend.domain.user.model.Users;
@@ -11,73 +14,78 @@ import nguyen.storemanagementbackend.domain.user.model.Users;
 import nguyen.storemanagementbackend.domain.user.service.UsersService;
 import org.springframework.stereotype.Service;
 
-import java.util.HashSet;
-import java.util.Optional;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 
 @Service
 public class StoreService {
 
     private final StoreRepository storeRepository;
     private final UsersService usersService;
+    private final StoreMapper storeMapper;
 
-    public StoreService(StoreRepository storeRepository, UsersService usersService) {
+    public StoreService(StoreRepository storeRepository, UsersService usersService, StoreMapper storeMapper) {
         this.storeRepository = storeRepository;
         this.usersService = usersService;
+        this.storeMapper = storeMapper;
     }
 
     /**
      * Create a new store
      *
-     * @param newStoreDto: Data Transfer Object containing information about the new store to be created.
+     * @param newStoreRequestDto Data Transfer Object containing information about the new store to be created.
      *                   Containing store owner ID and store info.
-     * @return: The newly created StoreModel object.
+     * @return The newly created StoreModel object.
      * @throws InvalidNewStoreException: If the provided store owner ID does not correspond to
      *                                   a valid ADMIN user.
      */
 
-    public StoreModel createStore(NewStoreDto newStoreDto) {
+    @Transactional
+    public StoreResponseBasedDto createStore(NewStoreRequestDto newStoreRequestDto) {
 
-        validateNewStoreDto(newStoreDto);
-        
-        Optional<Users> adminOptional = usersService.fetchUserById(newStoreDto.getStoreOwnerId());
+        validateNewStoreRequestDto(newStoreRequestDto);
+
+        Optional<Users> adminOptional = usersService.fetchUserById(newStoreRequestDto.getStoreOwnerId());
 
         Users owner = adminOptional.orElse(null);
 
-        Address newStoreAddress = Address.builder()
-                .addressNumber(newStoreDto.getStoreInfo().getStoreAddress().getAddressNumber())
-                .addressWard(newStoreDto.getStoreInfo().getStoreAddress().getAddressWard())
-                .addressDistrict(newStoreDto.getStoreInfo().getStoreAddress().getAddressDistrict())
-                .addressCity(newStoreDto.getStoreInfo().getStoreAddress().getAddressCity())
-                .addressCountry(newStoreDto.getStoreInfo().getStoreAddress().getAddressCountry())
-                .build();
+        StoreModel newStore = storeMapper.toEntity(newStoreRequestDto);
+        newStore.setStoreOwner(owner);
 
-        StoreInfoModel newStoreInfo = StoreInfoModel.builder()
-                .storeAddress(newStoreAddress)
-                .storeName(newStoreDto.getStoreInfo().getStoreName())
-                .storeDescription(newStoreDto.getStoreInfo().getStoreDescription())
-                .build();
+        initializeNewStoreAdmins(newStore, owner);
 
-        StoreModel newStore = StoreModel.builder()
-                .storeOwner(owner)
-                .storeInfo(newStoreInfo)
-                .build();
-
-        Set<Users> currentStoreAdmins = new HashSet<>();
-        currentStoreAdmins.add(owner);
-        newStore.setAdmins(currentStoreAdmins);
-
-        return storeRepository.save(newStore);
+        return storeMapper.toStoreResponseBasedDto(storeRepository.save(newStore));
     }
 
+    public List<StoreResponseBasedDto> fetchStoreBasedInfoByAdminId(UUID adminId) {
+        Optional<Users> adminOptional = usersService.fetchUserById(adminId);
+        if (adminOptional.isEmpty()) {
+            throw new NoStoreFoundException("No admin found with the provided ID!");
+        }
+        List<StoreModel> stores = storeRepository.findByStoreOwner(adminOptional.get());
+
+        return storeMapper.toStoreResponseBasedDtoList(stores);
+    }
+
+    @Transactional
     public void deleteStore(UUID storeId) {
         storeRepository.deleteById(storeId);
     }
 
+    public DetailedStoreResponseDto fetchStoreById(UUID storeId) {
+        Optional<StoreModel> fetchedStoreOptional = storeRepository.findById(storeId);
+        if (fetchedStoreOptional.isEmpty()) {
+            throw new NoStoreFoundException("No store found with the provided ID!");
+        }
+
+        StoreModel fetchedStore = fetchedStoreOptional.get();
+        return storeMapper.toDetailedStoreResponseDto(fetchedStore);
+    }
+
+
+
     // Helper functions
-    private void validateNewStoreDto(NewStoreDto newStoreDto) {
-        UUID currentUserId = newStoreDto.getStoreOwnerId();
+    private void validateNewStoreRequestDto(NewStoreRequestDto newStoreRequestDto) {
+        UUID currentUserId = newStoreRequestDto.getStoreOwnerId();
         Optional<Users> currentUserOptional = usersService.fetchUserById(currentUserId);
         
         if(currentUserOptional.isPresent()) {
@@ -88,5 +96,14 @@ public class StoreService {
         } else {
             throw new InvalidNewStoreException("No user found! Please register again!");
         }
+    }
+
+    private void initializeNewStoreAdmins(StoreModel newStore, Users owner) {
+        if (newStore.getAdmins() == null){
+            newStore.setAdmins(new HashSet<>());
+        }
+        Set<Users> currentStoreAdmins = newStore.getAdmins();
+        currentStoreAdmins.add(owner);
+        newStore.setAdmins(currentStoreAdmins);
     }
 }
