@@ -8,6 +8,8 @@ import nguyen.storemanagementbackend.domain.store.model.StoreModel;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
+import java.util.List;
+
 @Mapper(componentModel = "spring", uses = {UuidMapper.class, StoreInfoMapper.class})
 public interface StoreMapper {
 
@@ -23,4 +25,6 @@ public interface StoreMapper {
     @Mapping(target = "updatedAt", ignore = true)
     @Mapping(target = "admins", ignore = true)
     StoreModel toEntity(NewStoreRequestDto newStoreRequestDto);
+
+    List<DetailedStoreResponseDto> toDetailedStoreResponseDtoList(List<StoreModel> stores);
 }
