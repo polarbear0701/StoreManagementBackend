@@ -2,8 +2,8 @@ package nguyen.storemanagementbackend.domain.store.mapper;
 
 import nguyen.storemanagementbackend.common.dto.StoreResponseBasedDto;
 import nguyen.storemanagementbackend.common.mapper.UuidMapper;
-import nguyen.storemanagementbackend.domain.store.dto.DetailedStoreResponseDto;
-import nguyen.storemanagementbackend.domain.store.dto.NewStoreDto;
+import nguyen.storemanagementbackend.domain.store.dto.storemodel.request.NewStoreRequestDto;
+import nguyen.storemanagementbackend.domain.store.dto.storemodel.response.DetailedStoreResponseDto;
 import nguyen.storemanagementbackend.domain.store.model.StoreModel;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
@@ -22,5 +22,5 @@ public interface StoreMapper {
     @Mapping(target = "createdAt", ignore = true)
     @Mapping(target = "updatedAt", ignore = true)
     @Mapping(target = "admins", ignore = true)
-    StoreModel toEntity(NewStoreDto newStoreDto);
+    StoreModel toEntity(NewStoreRequestDto newStoreRequestDto);
 }
