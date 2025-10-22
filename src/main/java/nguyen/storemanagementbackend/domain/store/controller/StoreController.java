@@ -50,10 +50,10 @@ public class StoreController {
     }
 
     @GetMapping("/fetch/admin")
-    public ResponseEntity<GenericResponseDto<List<DetailedStoreResponseDto>>> fetchStoreByAdminId(
+    public ResponseEntity<GenericResponseDto<List<StoreResponseBasedDto>>> fetchStoreByAdminId(
             @AuthenticationPrincipal CustomUserDetails currentUser
     ) {
-        List<DetailedStoreResponseDto> storeFetchedDto = storeService.fetchStoreIdsByAdminId(currentUser.getId());
+        List<StoreResponseBasedDto> storeFetchedDto = storeService.fetchStoreBasedInfoByAdminId(currentUser.getId());
         return ResponseEntity.ok().body(new GenericResponseDto<>(HttpStatus.OK.value(), "Success", storeFetchedDto));
     }
 

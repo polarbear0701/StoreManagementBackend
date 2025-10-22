@@ -27,4 +27,5 @@ public interface StoreMapper {
     StoreModel toEntity(NewStoreRequestDto newStoreRequestDto);
 
     List<DetailedStoreResponseDto> toDetailedStoreResponseDtoList(List<StoreModel> stores);
+    List<StoreResponseBasedDto> toStoreResponseBasedDtoList(List<StoreModel> stores);
 }
