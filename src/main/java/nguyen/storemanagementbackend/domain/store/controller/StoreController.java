@@ -43,12 +43,14 @@ public class StoreController {
         return ResponseEntity.ok().body(new GenericResponseDto<>(HttpStatus.CREATED.value(), "Success", createdStore));
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/fetch/store/{storeId}")
     public ResponseEntity<GenericResponseDto<DetailedStoreResponseDto>> fetchStoreById(@PathVariable UUID storeId) {
         DetailedStoreResponseDto storeFetchedDto = storeService.fetchStoreById(storeId);
         return ResponseEntity.ok().body(new GenericResponseDto<>(HttpStatus.OK.value(), "Success", storeFetchedDto));
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/fetch/admin")
     public ResponseEntity<GenericResponseDto<List<StoreResponseBasedDto>>> fetchStoreByAdminId(
             @AuthenticationPrincipal CustomUserDetails currentUser
@@ -57,9 +59,13 @@ public class StoreController {
         return ResponseEntity.ok().body(new GenericResponseDto<>(HttpStatus.OK.value(), "Success", storeFetchedDto));
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/delete/{storeId}")
-    public String deleteStore(@PathVariable UUID storeId) {
-        storeService.deleteStore(storeId);
+    public String deleteStore(
+            @PathVariable UUID storeId,
+            @AuthenticationPrincipal CustomUserDetails currentUser
+    ) {
+        storeService.deleteStore(storeId, currentUser.getId());
         return "Store deleted";
     }
 }
