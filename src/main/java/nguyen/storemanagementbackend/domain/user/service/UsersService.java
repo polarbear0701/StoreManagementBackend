@@ -4,7 +4,8 @@ import nguyen.storemanagementbackend.common.dto.UserResponseBasedDto;
 import nguyen.storemanagementbackend.common.exception.NoUserFoundException;
 import nguyen.storemanagementbackend.common.exception.UserAlreadyExistsException;
 
-import nguyen.storemanagementbackend.domain.user.dto.request.RegisterRequestDto;
+import nguyen.storemanagementbackend.domain.user.dto.request.RegisterUserRequestDto;
+import nguyen.storemanagementbackend.domain.user.dto.request.UpdateUserRequestDto;
 import nguyen.storemanagementbackend.domain.user.mapper.UserMapper;
 import nguyen.storemanagementbackend.domain.user.model.Users;
 import nguyen.storemanagementbackend.domain.user.repository.UsersRepository;
@@ -45,7 +46,7 @@ public class UsersService {
         return usersList;
     }
 
-    public UserResponseBasedDto registerNewUsers(RegisterRequestDto requestDto) {
+    public UserResponseBasedDto registerNewUsers(RegisterUserRequestDto requestDto) {
         if (usersRepository.existsByEmail(requestDto.getEmail())) {
             throw new UserAlreadyExistsException(
                     "User with this email already exists!"
@@ -68,6 +69,8 @@ public class UsersService {
         return usersRepository.findById(userId);
     }
 
+    public void updateUser(UUID userId, UpdateUserRequestDto updateUserRequestDto) {
 
+    }
 
 }

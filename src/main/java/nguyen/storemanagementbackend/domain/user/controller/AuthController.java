@@ -6,8 +6,8 @@ import nguyen.storemanagementbackend.common.dto.UserResponseBasedDto;
 import nguyen.storemanagementbackend.common.exception.FailToRegisterException;
 import nguyen.storemanagementbackend.common.generic.GenericResponseDto;
 import nguyen.storemanagementbackend.domain.user.dto.request.AuthRequestDto;
+import nguyen.storemanagementbackend.domain.user.dto.request.RegisterUserRequestDto;
 import nguyen.storemanagementbackend.domain.user.dto.response.AuthResponseDto;
-import nguyen.storemanagementbackend.domain.user.dto.request.RegisterRequestDto;
 import nguyen.storemanagementbackend.domain.user.mapper.UserMapper;
 import nguyen.storemanagementbackend.domain.user.model.Users;
 import nguyen.storemanagementbackend.domain.user.service.UsersService;
@@ -93,7 +93,7 @@ public class AuthController {
 
 	@PostMapping("/register")
 	public ResponseEntity<GenericResponseDto<UserResponseBasedDto>> register(
-		@RequestBody RegisterRequestDto req
+		@RequestBody RegisterUserRequestDto req
 	) {
 		UserResponseBasedDto savedUser = usersService.registerNewUsers(req);
 

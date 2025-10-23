@@ -7,7 +7,7 @@ import nguyen.storemanagementbackend.domain.address.dto.NewAddressRequestDto;
 @NoArgsConstructor
 @AllArgsConstructor
 @SuperBuilder
-public class RegisterRequestDto {
+public class RegisterUserRequestDto {
     private String email;
     private String password;
     private String userName;
