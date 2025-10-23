@@ -67,15 +67,13 @@ public class StoreService {
     }
 
     @Transactional
-    public void deleteStore(UUID storeId, UUID adminId) {
+    public void deleteStore(UUID storeId, UUID ownerId) {
 
         StoreModel storeToDelete = storeRepository.findById(storeId).orElseThrow(
                 () -> new NoStoreFoundException("This store does not exist! Can't delete store")
         );
 
-        if (!storeToDelete.getStoreOwner().getUserId().equals(adminId)) {
-            throw new InvalidNewStoreException("You are not the owner of this store! Can't delete store");
-        }
+        validateStoreOwner(storeToDelete, ownerId);
 
         storeRepository.deleteById(storeId);
     }
@@ -114,5 +112,11 @@ public class StoreService {
         Set<Users> currentStoreAdmins = newStore.getAdmins();
         currentStoreAdmins.add(owner);
         newStore.setAdmins(currentStoreAdmins);
+    }
+
+    private void validateStoreOwner(StoreModel storeToDelete, UUID ownerId) {
+        if (!storeToDelete.getStoreOwner().getUserId().equals(ownerId)) {
+            throw new InvalidNewStoreException("You don't own this store! Operation failed!");
+        }
     }
 }
