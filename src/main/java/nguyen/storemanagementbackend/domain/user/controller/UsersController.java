@@ -1,23 +1,37 @@
 package nguyen.storemanagementbackend.domain.user.controller;
 
 import nguyen.storemanagementbackend.common.exception.NoUserFoundException;
+import nguyen.storemanagementbackend.domain.user.dto.response.DetailedUserResponseDto;
+import nguyen.storemanagementbackend.domain.user.mapper.UserMapper;
 import nguyen.storemanagementbackend.domain.user.model.Users;
-import nguyen.storemanagementbackend.domain.user.repository.UsersRepository;
+import nguyen.storemanagementbackend.domain.user.service.UsersService;
+import nguyen.storemanagementbackend.security.CustomUserDetails;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/v1/users")
 public class UsersController {
 
-    private final UsersRepository usersRepository;
+    private final UsersService usersService;
+    private final UserMapper userMapper;
 
-    public UsersController(UsersRepository usersRepository) {
-        this.usersRepository = usersRepository;
+    public UsersController(
+            UsersService usersService,
+            UserMapper userMapper
+    ) {
+        this.usersService = usersService;
+        this.userMapper = userMapper;
     }
 
-    @GetMapping("/find")
-    public Users findUsersById(@RequestBody String user_name) {
+    @GetMapping("/find/{email}")
+    public DetailedUserResponseDto fetchDetailedUserByEmail (
+            @AuthenticationPrincipal CustomUserDetails currentUser
+    ) {
+        Users fetchedUserByEmail = usersService.fetchUserByEmail(currentUser.getEmail()).orElseThrow(
+                () -> new NoUserFoundException("User with this email does not exist. Please try again")
+        );
 
-        return usersRepository.findByUserName(user_name).orElseThrow(() -> new NoUserFoundException("No user found!"));
+        return userMapper.toDetailedUserDto(fetchedUserByEmail);
     }
 }

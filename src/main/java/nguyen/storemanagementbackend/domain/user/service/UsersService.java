@@ -45,16 +45,8 @@ public class UsersService {
         return usersList;
     }
 
-    public Users findUserByName(String userName) {
-        Optional<Users> userInSearch = usersRepository.findByUserName(userName);
-        if (userInSearch.isEmpty()) {
-            throw new NoUserFoundException("No user found!");
-        }
-        return userInSearch.get();
-    }
-
     public UserResponseBasedDto registerNewUsers(RegisterRequestDto requestDto) {
-        if (this.findByEmail(requestDto.getEmail())) {
+        if (usersRepository.existsByEmail(requestDto.getEmail())) {
             throw new UserAlreadyExistsException(
                     "User with this email already exists!"
             );
@@ -67,19 +59,15 @@ public class UsersService {
         return userMapper.toUserResponseBasedDto(usersRepository.save(user));
     }
 
-    public boolean findByEmail(String email) {
-        return usersRepository.findByEmail(email).isPresent();
-    }
-
     public Optional<Users> fetchUserByEmail(String email) {
         return usersRepository.findByEmail(email);
     }
 
 
-
-
     public Optional<Users> fetchUserById(UUID userId) {
         return usersRepository.findById(userId);
     }
+
+
 
 }
