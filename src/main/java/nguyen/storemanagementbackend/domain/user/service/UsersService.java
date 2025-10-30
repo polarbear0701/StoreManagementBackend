@@ -1,6 +1,7 @@
 package nguyen.storemanagementbackend.domain.user.service;
 
 import nguyen.storemanagementbackend.common.dto.UserResponseBasedDto;
+import nguyen.storemanagementbackend.common.exception.InvalidNewPasswordException;
 import nguyen.storemanagementbackend.common.exception.NoUserFoundException;
 import nguyen.storemanagementbackend.common.exception.UserAlreadyExistsException;
 
@@ -23,6 +24,12 @@ public class UsersService {
     private final UsersRepository usersRepository;
     private final PasswordEncoder passwordEncoder;
     private final UserMapper userMapper;
+
+    private static final int MIN_LENGTH = 12;
+    private static final String HAS_UPPERCASE = ".*[A-Z].*";
+    private static final String HAS_LOWERCASE = ".[a-z].*";
+    private static final String HAS_DIGIT = ".*[0-9].*";
+    private static final String HAS_SPECIAL_CHAR = ".*[!@#$%^&*?].*";
 
     private final Logger logger = LoggerFactory.getLogger(UsersService.class);
 
@@ -53,10 +60,12 @@ public class UsersService {
             );
         }
 
+        checkPasswordQuality(requestDto.getPassword());
+        checkPasswordIsUsername(requestDto.getPassword(), requestDto.getUserName());
+
         Users user = userMapper.toEntity(requestDto);
 
         user.setPassword(passwordEncoder.encode(requestDto.getPassword()));
-        logger.info("New user created, id: {}", user.getUserId().toString());
         return userMapper.toUserResponseBasedDto(usersRepository.save(user));
     }
 
@@ -69,8 +78,73 @@ public class UsersService {
         return usersRepository.findById(userId);
     }
 
+    public void updatePassword() {
+
+    }
+
     public void updateUser(UUID userId, UpdateUserRequestDto updateUserRequestDto) {
 
     }
 
+    private void validatePassword(String newPassword, String currentPassword) {
+        if (passwordEncoder.matches(newPassword, currentPassword)) {
+            throw new InvalidNewPasswordException("New password and current password is similar");
+        }
+    }
+
+    /**
+     * Function to check new password quality.
+     * <p>The password should be:</p>
+     * <ul>
+     *     <li>At least 12 characters</li>
+     *     <li>Has at least one digit, lowercase, uppercase</li>
+     *     <li>Has a special character [!@#$%^&*?]</li>
+     * </ul>
+     * @param newPassword New password when create or update
+     * @throws InvalidNewPasswordException The function will throw InvalidNewPasswordException
+     */
+    private void checkPasswordQuality (String newPassword) throws InvalidNewPasswordException {
+        if (newPassword == null || newPassword.isEmpty()) {
+            throw  new InvalidNewPasswordException("No password provided");
+        }
+
+        if (newPassword.length() < MIN_LENGTH) {
+            throw new InvalidNewPasswordException("Password should have at lease 12 characters");
+        }
+
+         if (!newPassword.matches(HAS_LOWERCASE)) {
+             throw new InvalidNewPasswordException("Password doesn't have lowercase character");
+         }
+
+         if (!newPassword.matches(HAS_UPPERCASE)) {
+             throw new InvalidNewPasswordException("Password doesn't have uppercase character");
+         }
+
+         if (!newPassword.matches(HAS_DIGIT)) {
+             throw new InvalidNewPasswordException("Password doesn't have digit");
+         }
+
+         if (!newPassword.matches(HAS_SPECIAL_CHAR)) {
+             throw new InvalidNewPasswordException("Password doesn't have special character");
+         }
+    }
+
+    /**
+     * Function to check if userName is similar or a part of password.
+     *
+     * @param newPassword the password from request dto
+     * @param userName the username that need to create or change
+     */
+    private void checkPasswordIsUsername(String newPassword, String userName) {
+        String checkedNewPassword = newPassword.toLowerCase();
+        String checkedUserName = userName.toLowerCase();
+
+        if (checkedNewPassword.equals(checkedUserName)) {
+            throw new InvalidNewPasswordException("Password is similar to username");
+        }
+
+        if (checkedNewPassword.matches(".*checkedUserName.*")) {
+            throw new InvalidNewPasswordException("Password contains username");
+        }
+    }
 }
