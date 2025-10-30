@@ -1,11 +1,14 @@
 package nguyen.storemanagementbackend.config;
 
+import nguyen.storemanagementbackend.security.CustomAccessDeniedHandler;
+import nguyen.storemanagementbackend.security.CustomAuthEntryPoint;
 import nguyen.storemanagementbackend.security.JwtAuthenticationEntryPoint;
 import nguyen.storemanagementbackend.security.JwtAuthenticationFilter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.CsrfConfigurer;
@@ -21,6 +24,7 @@ import java.util.List;
 
 @Configuration
 @EnableWebSecurity
+@EnableMethodSecurity
 public class SecurityConfig {
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
     private final JwtAuthenticationEntryPoint authenticationEntryPoint;
@@ -43,6 +47,10 @@ public class SecurityConfig {
                         SessionCreationPolicy.STATELESS
                 ))
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
+               .exceptionHandling(ex -> ex
+                       .authenticationEntryPoint(new CustomAuthEntryPoint())
+                       .accessDeniedHandler(new CustomAccessDeniedHandler())
+               )
                 .build();
     }
 
