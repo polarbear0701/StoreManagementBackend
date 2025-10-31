@@ -32,9 +32,9 @@ public class UsersController {
 
     @GetMapping("/find/{email}")
     public DetailedUserResponseDto fetchDetailedUserByEmail (
-            @AuthenticationPrincipal CustomUserDetails currentUser
+            @PathVariable String email
     ) {
-        Users fetchedUserByEmail = usersService.fetchUserByEmail(currentUser.getEmail()).orElseThrow(
+        Users fetchedUserByEmail = usersService.fetchUserByEmail(email).orElseThrow(
                 () -> new NoUserFoundException("User with this email does not exist. Please try again")
         );
 
