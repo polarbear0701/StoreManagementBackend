@@ -1,5 +1,7 @@
 package nguyen.storemanagementbackend.domain.user.service;
 
+import com.nulabinc.zxcvbn.Strength;
+import com.nulabinc.zxcvbn.Zxcvbn;
 import nguyen.storemanagementbackend.common.dto.UserResponseBasedDto;
 import nguyen.storemanagementbackend.common.exception.InvalidNewPasswordException;
 import nguyen.storemanagementbackend.common.exception.NoUserFoundException;
@@ -30,6 +32,8 @@ public class UsersService {
     private static final String HAS_LOWERCASE = ".[a-z].*";
     private static final String HAS_DIGIT = ".*[0-9].*";
     private static final String HAS_SPECIAL_CHAR = ".*[!@#$%^&*?].*";
+
+    private static final Zxcvbn externalPasswordValidator = new Zxcvbn();
 
     private final Logger logger = LoggerFactory.getLogger(UsersService.class);
 
@@ -78,18 +82,28 @@ public class UsersService {
         return usersRepository.findById(userId);
     }
 
-    public void updatePassword() {
+    public UserResponseBasedDto updatePassword(String newPassword, UUID userId) {
+        Users currentUser = usersRepository.findById(userId).orElseThrow(
+                () -> new NoUserFoundException("No user found")
+        );
+        checkPasswordIsUsername(newPassword, currentUser.getUserName());
+        validatePasswordOnUpdate(newPassword, currentUser.getPassword());
 
+        //If validatePasswordOnUpdate pass, move to this section
+        currentUser.setPassword(passwordEncoder.encode(newPassword));
+        return userMapper.toUserResponseBasedDto(usersRepository.save(currentUser));
     }
 
     public void updateUser(UUID userId, UpdateUserRequestDto updateUserRequestDto) {
 
     }
 
-    private void validatePassword(String newPassword, String currentPassword) {
-        if (passwordEncoder.matches(newPassword, currentPassword)) {
+    private void validatePasswordOnUpdate(String newPassword, String currentEncodedPassword) {
+        if (passwordEncoder.matches(newPassword, currentEncodedPassword)) {
             throw new InvalidNewPasswordException("New password and current password is similar");
         }
+
+        checkPasswordQuality(newPassword);
     }
 
     /**
@@ -127,6 +141,15 @@ public class UsersService {
          if (!newPassword.matches(HAS_SPECIAL_CHAR)) {
              throw new InvalidNewPasswordException("Password doesn't have special character");
          }
+
+         Strength passwordStrength = externalPasswordValidator.measure(newPassword);
+
+         if (passwordStrength.getScore() <= 3) {
+             throw new InvalidNewPasswordException(
+                     String.format("Password is not good enough. Issue: %s", passwordStrength.getFeedback())
+             );
+         }
+
     }
 
     /**
@@ -139,7 +162,7 @@ public class UsersService {
         String checkedNewPassword = newPassword.toLowerCase();
         String checkedUserName = userName.toLowerCase();
 
-        if (checkedNewPassword.equals(checkedUserName)) {
+        if (checkedNewPassword.contains(checkedUserName)) {
             throw new InvalidNewPasswordException("Password is similar to username");
         }
 
