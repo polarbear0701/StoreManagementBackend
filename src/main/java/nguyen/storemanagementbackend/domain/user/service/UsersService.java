@@ -2,7 +2,9 @@ package nguyen.storemanagementbackend.domain.user.service;
 
 import com.nulabinc.zxcvbn.Strength;
 import com.nulabinc.zxcvbn.Zxcvbn;
+import jakarta.transaction.Transactional;
 import nguyen.storemanagementbackend.common.dto.UserResponseBasedDto;
+import nguyen.storemanagementbackend.common.exception.FailToUpdateUserException;
 import nguyen.storemanagementbackend.common.exception.InvalidNewPasswordException;
 import nguyen.storemanagementbackend.common.exception.NoUserFoundException;
 import nguyen.storemanagementbackend.common.exception.UserAlreadyExistsException;
@@ -94,8 +96,20 @@ public class UsersService {
         return userMapper.toUserResponseBasedDto(usersRepository.save(currentUser));
     }
 
-    public void updateUser(UUID userId, UpdateUserRequestDto updateUserRequestDto) {
+    public UserResponseBasedDto updateUser(UUID userId, UpdateUserRequestDto updateUserRequestDto) {
+        if (updateUserRequestDto == null) {
+            throw new RuntimeException("Error occurs. No user request");
+        }
+        Users user = usersRepository.findById(userId).orElseThrow(
+                () -> new NoUserFoundException("No user of this ID found")
+        );
 
+        if (updateUserRequestDto.getUserAge() != null) {
+            validateUpdateUserDto(updateUserRequestDto);
+        }
+
+        userMapper.updateUser(updateUserRequestDto, user);
+        return userMapper.toUserResponseBasedDto(usersRepository.save(user));
     }
 
     private void validatePasswordOnUpdate(String newPassword, String currentEncodedPassword) {
@@ -168,6 +182,16 @@ public class UsersService {
 
         if (checkedNewPassword.matches(".*checkedUserName.*")) {
             throw new InvalidNewPasswordException("Password contains username");
+        }
+    }
+
+    private void validateUpdateUserDto(UpdateUserRequestDto updateUserRequestDto) {
+        if (updateUserRequestDto.getUserAge() < 0) {
+            throw new FailToUpdateUserException("Negative age input. Please try again");
+        }
+
+        if (updateUserRequestDto.getUserAge() < 18) {
+            throw new FailToUpdateUserException("You must be at least 18 to register");
         }
     }
 }

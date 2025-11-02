@@ -41,13 +41,19 @@ public class UsersController {
         return userMapper.toDetailedUserDto(fetchedUserByEmail);
     }
 
-    @PatchMapping("/update")
-    public ResponseEntity<GenericResponseDto<String>> updateUser (
+    @PatchMapping("/update/info")
+    public ResponseEntity<GenericResponseDto<UserResponseBasedDto>> updateUser (
             @AuthenticationPrincipal CustomUserDetails currentUser,
             @RequestBody UpdateUserRequestDto updateUserRequestDto
     ) {
+
+        UserResponseBasedDto updatedUser = usersService.updateUser(
+                currentUser.getId(),
+                updateUserRequestDto
+        );
+
         return ResponseEntity.status(HttpStatus.OK.value())
-                .body(new GenericResponseDto<>(HttpStatus.OK.value(), "Updated successfully", ""));
+                .body(new GenericResponseDto<>(HttpStatus.OK.value(), "Updated successfully", updatedUser));
     }
 
     @PatchMapping("/update/password")

@@ -8,10 +8,7 @@ import nguyen.storemanagementbackend.domain.user.dto.request.UpdateUserRequestDt
 import nguyen.storemanagementbackend.domain.user.dto.response.DetailedUserResponseDto;
 import nguyen.storemanagementbackend.domain.user.dto.response.UserSelectionResponseDto;
 import nguyen.storemanagementbackend.domain.user.model.Users;
-import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
-import org.mapstruct.MappingTarget;
-import org.mapstruct.NullValueMappingStrategy;
+import org.mapstruct.*;
 
 import java.util.List;
 
@@ -35,5 +32,6 @@ public interface UserMapper {
     Users toEntity(RegisterUserRequestDto registerRequestDto);
 
     @Mapping(target = "userId", ignore = true)
+    @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
     void updateUser(UpdateUserRequestDto updateUserRequestDto, @MappingTarget Users users);
 }
