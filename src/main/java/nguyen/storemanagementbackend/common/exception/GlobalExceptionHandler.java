@@ -72,4 +72,16 @@ public class GlobalExceptionHandler {
 
         return ResponseEntity.status(HttpStatus.BAD_REQUEST.value()).body(error);
     }
+
+    @ExceptionHandler(FailToUpdateUserException.class)
+    public ResponseEntity<GenericExceptionResponseDto> handleFailToRegister(FailToUpdateUserException exception) {
+        GenericExceptionResponseDto error = new GenericExceptionResponseDto(
+                HttpStatus.BAD_REQUEST.value(),
+                exception.getMessage(),
+                System.currentTimeMillis(),
+                exception.getClass().getSimpleName()
+        );
+
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST.value()).body(error);
+    }
 }
