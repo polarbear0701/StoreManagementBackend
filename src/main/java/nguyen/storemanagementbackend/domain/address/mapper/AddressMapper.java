@@ -4,8 +4,7 @@ import nguyen.storemanagementbackend.common.dto.AddressResponseBasedDto;
 import nguyen.storemanagementbackend.common.mapper.UuidMapper;
 import nguyen.storemanagementbackend.domain.address.dto.NewAddressRequestDto;
 import nguyen.storemanagementbackend.domain.address.model.Address;
-import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
+import org.mapstruct.*;
 
 @Mapper(componentModel = "spring", uses = {UuidMapper.class})
 public interface AddressMapper {
@@ -13,4 +12,8 @@ public interface AddressMapper {
 
     @Mapping(target = "addressId", ignore = true)
     Address toEntity(NewAddressRequestDto newAddressRequestDto);
+
+    @Mapping(target = "addressId", ignore = true)
+    @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
+    void updateAddress(NewAddressRequestDto newAddressRequestDto, @MappingTarget Address address);
 }
