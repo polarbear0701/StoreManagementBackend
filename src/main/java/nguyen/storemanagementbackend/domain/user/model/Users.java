@@ -68,6 +68,9 @@ public class Users {
     @Column(name = "auth_provider", length = 20, nullable = false)
     @Builder.Default
     private AuthProvider authProvider = AuthProvider.LOCAL;
+    
+    @Column(name = "is_active")
+    private Boolean isActive;
 
     @PrePersist
     public void onCreate(){

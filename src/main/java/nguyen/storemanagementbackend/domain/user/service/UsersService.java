@@ -2,7 +2,6 @@ package nguyen.storemanagementbackend.domain.user.service;
 
 import com.nulabinc.zxcvbn.Strength;
 import com.nulabinc.zxcvbn.Zxcvbn;
-import jakarta.transaction.Transactional;
 import nguyen.storemanagementbackend.common.dto.UserResponseBasedDto;
 import nguyen.storemanagementbackend.common.exception.FailToUpdateUserException;
 import nguyen.storemanagementbackend.common.exception.InvalidNewPasswordException;
@@ -94,6 +93,15 @@ public class UsersService {
         //If validatePasswordOnUpdate pass, move to this section
         currentUser.setPassword(passwordEncoder.encode(newPassword));
         return userMapper.toUserResponseBasedDto(usersRepository.save(currentUser));
+    }
+    
+    public void disableUser(UUID currentUserId) {
+        Users fetchedUser = usersRepository.findById(currentUserId).orElseThrow(
+            () -> new NoUserFoundException("No user found. Please try again")
+        );
+        
+        fetchedUser.setIsActive(false);
+        usersRepository.save(fetchedUser);
     }
 
     public UserResponseBasedDto updateUser(UUID userId, UpdateUserRequestDto updateUserRequestDto) {

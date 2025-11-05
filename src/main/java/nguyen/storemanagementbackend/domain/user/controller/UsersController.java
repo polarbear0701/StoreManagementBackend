@@ -40,6 +40,20 @@ public class UsersController {
 
         return userMapper.toDetailedUserDto(fetchedUserByEmail);
     }
+    
+    @DeleteMapping("/delete")
+    public ResponseEntity<GenericResponseDto<String>> disableUser(
+        @AuthenticationPrincipal CustomUserDetails currentUser
+    ) {
+        usersService.disableUser(currentUser.getId());
+        return ResponseEntity.ok().body(
+            new GenericResponseDto<String>(
+                HttpStatus.OK.value(),
+                "User deleted successfully",
+                null
+            )
+        );
+    }
 
     @PatchMapping("/update/info")
     public ResponseEntity<GenericResponseDto<UserResponseBasedDto>> updateUser (
