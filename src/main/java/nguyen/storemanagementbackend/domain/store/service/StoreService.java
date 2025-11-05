@@ -75,7 +75,7 @@ public class StoreService {
 
         validateStoreOwner(storeToDelete, ownerId);
 
-        storeRepository.deleteById(storeId);
+        storeToDelete.setActive(false);
     }
 
     public DetailedStoreResponseDto fetchStoreById(UUID storeId) {
