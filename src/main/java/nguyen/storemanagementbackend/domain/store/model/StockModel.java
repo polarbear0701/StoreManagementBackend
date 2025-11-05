@@ -40,4 +40,7 @@ public class StockModel {
     @ManyToOne
     @JoinColumn(name = "updated_by", referencedColumnName = "user_id")
     private Users updatedBy;
+    
+    @Column(name = "is_active")
+    private boolean isActive;
 }
