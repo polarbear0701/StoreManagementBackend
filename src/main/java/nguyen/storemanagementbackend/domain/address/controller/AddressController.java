@@ -34,4 +34,19 @@ public class AddressController {
                 )
         );
     }
+    
+    @DeleteMapping("/delete/{addressId}")
+    public ResponseEntity<GenericResponseDto<String>> disableAddressController(
+        @PathVariable String addressId
+    ) {
+        addressService.disableAddress(UUID.fromString(addressId));
+        return ResponseEntity.ok()
+            .body(
+                new GenericResponseDto<> (
+                    HttpStatus.OK.value(),
+                    "Address deleted successfully",
+                    null
+                )
+            );
+    }
 }

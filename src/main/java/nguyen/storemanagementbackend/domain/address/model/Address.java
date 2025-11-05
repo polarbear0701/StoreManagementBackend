@@ -41,4 +41,7 @@ public class Address {
 
     @Column(name="address_country", length = 50, nullable = false)
     private String addressCountry;
+    
+    @Column(name = "is_active")
+    private boolean isActive;
 }

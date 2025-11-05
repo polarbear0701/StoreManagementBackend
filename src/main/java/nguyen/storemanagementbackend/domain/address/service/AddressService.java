@@ -39,5 +39,14 @@ public class AddressService {
         return addressMapper.toAddressResponseBasedDto(addressRepository.save(updatedAddress));
     }
 
+    public void disableAddress(UUID addressId) {
+        Address currentAddress = addressRepository.findById(addressId).orElseThrow(
+            () -> new RuntimeException("No address found!")
+        );
+        
+        currentAddress.setActive(false);
+        
+        addressRepository.save(currentAddress);
+    }
 
 }
