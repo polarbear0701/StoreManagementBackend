@@ -7,7 +7,8 @@ import lombok.*;
 @NoArgsConstructor
 @Getter
 @Setter
-public class GenericResponseDto <T>{
+public class GenericResponseDto<T> {
+
     private int status;
     private String message;
     private T data;
